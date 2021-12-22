@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'routes.dart';
 
 import 'package:coffee_journal/model/brew.dart';
+import 'package:coffee_journal/bloc/brew_bloc.dart';
 
 class NewBrew extends StatefulWidget {
   NewBrew({Key? key}) : super(key: key);
@@ -21,10 +22,26 @@ class NewBrewState extends State<NewBrew> {
   //
   // Note: This is a `GlobalKey<FormState>`,
   // not a GlobalKey<MyCustomFormState>.
+  late final BrewBloc brewBloc;
   final _formKey = GlobalKey<FormState>();
   final _roastProfiles = <String>["Light", "Medium", "Dark", "Charcoal"];
-  final _brewMethods = <String>["Aeropress", "V60", "Chemex", "Siphon Pot", "French Press", "Espresso", "Delter Press", "Bripe"];
-  final _grindSize = <String>["Coarse", "Medium-Coarse", "Medium", "Fine", "Superfine"];
+  final _brewMethods = <String>[
+    "Aeropress",
+    "V60",
+    "Chemex",
+    "Siphon Pot",
+    "French Press",
+    "Espresso",
+    "Delter Press",
+    "Bripe"
+  ];
+  final _grindSize = <String>[
+    "Coarse",
+    "Medium-Coarse",
+    "Medium",
+    "Fine",
+    "Superfine"
+  ];
   final _doseMeasurements = <String>["g", "ml", "scoops", "beans"];
   final _waterMeasurements = <String>["g", "ml", "cups", "drops"];
 
@@ -39,17 +56,36 @@ class NewBrewState extends State<NewBrew> {
   String _selectedWaterMeasurement = "g";
 
   @override
+  initState() {
+    super.initState();
+    brewBloc = BrewBloc();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    brewBloc.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
     return Scaffold(
-      appBar: AppBar(
-        title: Text("New Brew"),
-      ),
-      body: _buildForm(),
-    );
+        appBar: AppBar(
+          title: Text("New Brew"),
+        ),
+        body: StreamBuilder(
+            stream: brewBloc.brews,
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Brew>> snapshot) {
+              return _buildForm(snapshot);
+            }));
   }
 
-  Widget _buildForm() {
+  static String _displayStringForRoaster(Brew option) => option.roaster ?? '';
+  static String _displayStringForBlend(Brew option) => option.blend ?? '';
+
+  Widget _buildForm(AsyncSnapshot<List<Brew>> snapshot) {
     return Form(
       key: _formKey,
       child: Padding(
@@ -64,33 +100,129 @@ class NewBrewState extends State<NewBrew> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    TextFormField(
-                      decoration: const InputDecoration(
-                          labelText: "Roaster"
-                      ),
-                      // The validator receives the text that the user has entered.
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Enter the roaster's name";
+                    RawAutocomplete<Brew>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (snapshot.hasData) {
+                          return snapshot.data!.where((Brew option) {
+                            return option.roaster!.toLowerCase()
+                                .contains(textEditingValue.text.toLowerCase());
+                          });
                         }
-                        return null;
+                        return List.generate(0, (index) => Brew());
                       },
-                      onChanged: (text) {
-                        _roaster = text;
+                      displayStringForOption: _displayStringForRoaster,
+                      fieldViewBuilder: (BuildContext context,
+                          TextEditingController textEditingController,
+                          FocusNode focusNode,
+                          VoidCallback onFieldSubmitted) {
+                        return TextFormField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          onFieldSubmitted: (String value) {
+                            onFieldSubmitted();
+                          },
+                          decoration:
+                              const InputDecoration(labelText: "Roaster"),
+                          // The validator receives the text that the user has entered.
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Enter the roaster's name";
+                            }
+                            return null;
+                          },
+                          onChanged: (text) {
+                            _roaster = text;
+                          },
+                        );
+                      },
+                      optionsViewBuilder: (BuildContext context,
+                          AutocompleteOnSelected<Brew> onSelected,
+                          Iterable<Brew> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            elevation: 4.0,
+                            child: SizedBox(
+                              height: 120.0,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(8.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final Brew option = options.elementAt(index);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.roaster!),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
                       },
                     ),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                          labelText: "Blend"
-                      ),
-                      onChanged: (text) {
-                        _blend = text;
+                    RawAutocomplete<Brew>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (snapshot.hasData) {
+                          return snapshot.data!.where((Brew option) {
+                            return option.blend!.toLowerCase()
+                                .contains(textEditingValue.text.toLowerCase());
+                          });
+                        }
+                        return List.generate(0, (index) => Brew());
+                      },
+                      displayStringForOption: _displayStringForBlend,
+                      fieldViewBuilder: (BuildContext context,
+                          TextEditingController textEditingController,
+                          FocusNode focusNode,
+                          VoidCallback onFieldSubmitted) {
+                        return TextFormField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          onFieldSubmitted: (String value) {
+                            onFieldSubmitted();
+                          },
+                          decoration: const InputDecoration(labelText: "Blend"),
+                          onChanged: (text) {
+                            _blend = text;
+                          },
+                        );
+                      },
+                      optionsViewBuilder: (BuildContext context,
+                          AutocompleteOnSelected<Brew> onSelected,
+                          Iterable<Brew> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            elevation: 4.0,
+                            child: SizedBox(
+                              height: 120.0,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(8.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final Brew option = options.elementAt(index);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.blend!),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
                       },
                     ),
                     DropdownButtonFormField(
-                        decoration: const InputDecoration(
-                            labelText: "Roast Profile"
-                        ),
+                        decoration:
+                            const InputDecoration(labelText: "Roast Profile"),
                         value: _selectedRoastProfile,
                         onChanged: (value) {
                           setState(() {
@@ -104,14 +236,13 @@ class NewBrewState extends State<NewBrew> {
                         },
                         items: _roastProfiles
                             .map((String profile) => DropdownMenuItem(
-                          value: profile,
-                          child: Text (profile),
-                        )).toList()
-                    ),
+                                  value: profile,
+                                  child: Text(profile),
+                                ))
+                            .toList()),
                     DropdownButtonFormField(
-                        decoration: const InputDecoration(
-                            labelText: "Brew Method"
-                        ),
+                        decoration:
+                            const InputDecoration(labelText: "Brew Method"),
                         value: _selectedBrewMethod,
                         onChanged: (value) {
                           setState(() {
@@ -125,14 +256,13 @@ class NewBrewState extends State<NewBrew> {
                         },
                         items: _brewMethods
                             .map((String profile) => DropdownMenuItem(
-                          value: profile,
-                          child: Text (profile),
-                        )).toList()
-                    ),
+                                  value: profile,
+                                  child: Text(profile),
+                                ))
+                            .toList()),
                     DropdownButtonFormField(
-                        decoration: const InputDecoration(
-                            labelText: "Grind Size"
-                        ),
+                        decoration:
+                            const InputDecoration(labelText: "Grind Size"),
                         value: _selectedGrindSize,
                         onChanged: (value) {
                           setState(() {
@@ -146,10 +276,10 @@ class NewBrewState extends State<NewBrew> {
                         },
                         items: _grindSize
                             .map((String profile) => DropdownMenuItem(
-                          value: profile,
-                          child: Text (profile),
-                        )).toList()
-                    ),
+                                  value: profile,
+                                  child: Text(profile),
+                                ))
+                            .toList()),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -159,32 +289,32 @@ class NewBrewState extends State<NewBrew> {
                         Expanded(
                           flex: 3,
                           child: Padding(
-                              padding: const EdgeInsets.only(right: 40.0),
-                              child: TextFormField(
-                                decoration: const InputDecoration(
-                                    labelText: "Dose"
-                                ),
-                                // The validator receives the text that the user has entered.
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Enter the amount of coffee used";
-                                  }
-                                  return null;
-                                },
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                onChanged: (text) {
-                                  _dose = int.parse(text);
-                                },
-                              ),
+                            padding: const EdgeInsets.only(right: 40.0),
+                            child: TextFormField(
+                              decoration:
+                                  const InputDecoration(labelText: "Dose"),
+                              // The validator receives the text that the user has entered.
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Enter the amount of coffee used";
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              onChanged: (text) {
+                                _dose = int.parse(text);
+                              },
+                            ),
                           ),
                         ),
                         Expanded(
                           flex: 1,
                           child: DropdownButtonFormField(
                               decoration: const InputDecoration(
-                                  labelText: "Measurement"
-                              ),
+                                  labelText: "Measurement"),
                               value: _selectedDoseMeasurement,
                               onChanged: (value) {
                                 setState(() {
@@ -198,10 +328,10 @@ class NewBrewState extends State<NewBrew> {
                               },
                               items: _doseMeasurements
                                   .map((String profile) => DropdownMenuItem(
-                                value: profile,
-                                child: Text (profile),
-                              )).toList()
-                          ),
+                                        value: profile,
+                                        child: Text(profile),
+                                      ))
+                                  .toList()),
                         ),
                       ],
                     ),
@@ -216,29 +346,30 @@ class NewBrewState extends State<NewBrew> {
                           child: Padding(
                             padding: const EdgeInsets.only(right: 40.0),
                             child: TextFormField(
-                            decoration: const InputDecoration(
-                                labelText: "Water"
+                              decoration:
+                                  const InputDecoration(labelText: "Water"),
+                              // The validator receives the text that the user has entered.
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Enter the amount of water used";
+                                }
+                                return null;
+                              },
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              onChanged: (text) {
+                                _water = int.parse(text);
+                              },
                             ),
-                            // The validator receives the text that the user has entered.
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Enter the amount of water used";
-                              }
-                              return null;
-                            },
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            onChanged: (text) {
-                              _water = int.parse(text);
-                            },
                           ),
-                        ),),
+                        ),
                         Expanded(
                           flex: 1,
                           child: DropdownButtonFormField(
                               decoration: const InputDecoration(
-                                  labelText: "Measurement"
-                              ),
+                                  labelText: "Measurement"),
                               value: _selectedWaterMeasurement,
                               onChanged: (value) {
                                 setState(() {
@@ -252,10 +383,10 @@ class NewBrewState extends State<NewBrew> {
                               },
                               items: _waterMeasurements
                                   .map((String profile) => DropdownMenuItem(
-                                value: profile,
-                                child: Text (profile),
-                              )).toList()
-                          ),
+                                        value: profile,
+                                        child: Text(profile),
+                                      ))
+                                  .toList()),
                         ),
                       ],
                     ),
@@ -267,14 +398,13 @@ class NewBrewState extends State<NewBrew> {
                           // you'd often call a server or save the information in a database.
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                                content: Text('Starting Brew'),
-                                action: SnackBarAction(
-                                  label: 'Undo',
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-
+                              content: Text('Starting Brew'),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
                             ),
                           );
                           _startBrew();
@@ -306,10 +436,5 @@ class NewBrewState extends State<NewBrew> {
       time: DateTime.now().toUtc().millisecondsSinceEpoch,
     );
     Navigator.of(context).pushNamed(brewInProgress, arguments: brew);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }
