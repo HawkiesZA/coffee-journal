@@ -26,7 +26,7 @@ class BrewBloc {
   getBrews({String? query}) async {
     //sink is a way of adding data reactively to the stream
     //by registering a new event
-    developer.log("Getting all brews");
+    developer.log("Getting all brews with query $query");
     _brewController.sink.add(await _brewRepository.getAllBrews(query: query));
   }
 

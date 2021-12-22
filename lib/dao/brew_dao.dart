@@ -41,16 +41,18 @@ class BrewDao {
 
     List<Map<String, dynamic>> result = List.empty();
     if (query != null) {
-      if (query.isNotEmpty)
+      if (query.isNotEmpty) {
+        developer.log("Brew dao: Getting all brews with query $query");
         result = await db.query(brewTable,
             columns: columns,
-            where: 'description LIKE ?',
-            whereArgs: ["%$query%"],
+            where: 'roaster LIKE ? OR blend LIKE ? OR method LIKE ?',
+            whereArgs: ["%$query%", "%$query%", "%$query%"],
             orderBy: 'time desc');
+        developer.log('Got ${result.length} brews');
+      }
     } else {
       result = await db.query(brewTable, columns: columns, orderBy: 'time desc');
     }
-
     List<Brew> brews = result.isNotEmpty
         ? result.map((item) => Brew.fromDatabaseJson(item)).toList()
         : [];

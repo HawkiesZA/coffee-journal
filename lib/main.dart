@@ -4,6 +4,7 @@ import 'package:coffee_journal/edit_brew.dart';
 import 'package:coffee_journal/model/brew.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'new_brew.dart';
 import 'routes.dart';
 import 'brew_in_progress.dart';
@@ -16,7 +17,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,7 +57,19 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   late final BrewBloc brewBloc;
   late ScrollController controller;
   bool fabIsVisible = true;
+  late SearchBar searchBar;
 
+  AppBar buildAppBar(BuildContext context) {
+    return new AppBar(
+        title: Text(widget.title),
+        actions: [searchBar.getSearchAction(context)]
+    );
+  }
+
+  void search(String searchString) {
+    developer.log("Searching");
+    brewBloc.getBrews(query: searchString);
+  }
 
   @override
   initState() {
@@ -75,6 +87,12 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
       }
 
     });
+    searchBar = new SearchBar(
+        inBar: false,
+        setState: setState,
+        onSubmitted: search,
+        buildDefaultAppBar: buildAppBar
+    );
   }
 
   Widget _buildList() {
@@ -89,7 +107,12 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   Widget _buildListItem(AsyncSnapshot<List<Brew>> snapshot) {
     if (snapshot.hasData) {
       return snapshot.requireData.length != 0
-          ? ListView.builder(
+          ? RefreshIndicator(
+          onRefresh: () async {
+            _refresh();
+          },
+          child: ListView.builder(
+              physics: const AlwaysScrollableScrollPhysics(),
               controller: controller,
               padding: const EdgeInsets.all(16.0),
               itemCount: snapshot.requireData.length,
@@ -101,6 +124,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
                 }
                 return _buildRow(brew);
               })
+      )
           : Container(
               child: Center(
               child: noBrewMessageWidget(),
@@ -235,9 +259,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   Widget build(BuildContext context) {
     developer.log("Building main widget");
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      appBar: searchBar.build(context),
       body: _buildList(),
       floatingActionButton: fabIsVisible ? FloatingActionButton(
         onPressed: _newBrew,
