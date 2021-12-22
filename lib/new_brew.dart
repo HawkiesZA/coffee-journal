@@ -152,6 +152,7 @@ class NewBrewState extends State<NewBrew> {
                                   return GestureDetector(
                                     onTap: () {
                                       onSelected(option);
+                                      _roaster = option.roaster!;
                                     },
                                     child: ListTile(
                                       title: Text(option.roaster!),
@@ -208,6 +209,7 @@ class NewBrewState extends State<NewBrew> {
                                   return GestureDetector(
                                     onTap: () {
                                       onSelected(option);
+                                      _blend = option.blend!;
                                     },
                                     child: ListTile(
                                       title: Text(option.blend!),
