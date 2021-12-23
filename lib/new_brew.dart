@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'routes.dart';
+import 'extensions.dart';
 
 import 'package:coffee_journal/model/brew.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
@@ -103,7 +104,7 @@ class NewBrewState extends State<NewBrew> {
                     RawAutocomplete<Brew>(
                       optionsBuilder: (TextEditingValue textEditingValue) {
                         if (snapshot.hasData) {
-                          return snapshot.data!.where((Brew option) {
+                          return snapshot.data.filterUniqueRoaster().where((Brew option) {
                             return option.roaster!.toLowerCase()
                                 .contains(textEditingValue.text.toLowerCase());
                           });
@@ -168,7 +169,7 @@ class NewBrewState extends State<NewBrew> {
                     RawAutocomplete<Brew>(
                       optionsBuilder: (TextEditingValue textEditingValue) {
                         if (snapshot.hasData) {
-                          return snapshot.data!.where((Brew option) {
+                          return snapshot.data.filterUniqueBlend().where((Brew option) {
                             return option.blend!.toLowerCase()
                                 .contains(textEditingValue.text.toLowerCase());
                           });
