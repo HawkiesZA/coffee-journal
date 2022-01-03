@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'routes.dart';
 import 'extensions.dart';
+import 'constants.dart';
 
 import 'package:coffee_journal/model/brew.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
@@ -25,26 +26,6 @@ class NewBrewState extends State<NewBrew> {
   // not a GlobalKey<MyCustomFormState>.
   late final BrewBloc brewBloc;
   final _formKey = GlobalKey<FormState>();
-  final _roastProfiles = <String>["Light", "Medium", "Dark", "Charcoal"];
-  final _brewMethods = <String>[
-    "Aeropress",
-    "V60",
-    "Chemex",
-    "Siphon Pot",
-    "French Press",
-    "Espresso",
-    "Delter Press",
-    "Bripe"
-  ];
-  final _grindSize = <String>[
-    "Coarse",
-    "Medium-Coarse",
-    "Medium",
-    "Fine",
-    "Superfine"
-  ];
-  final _doseMeasurements = <String>["g", "ml", "scoops", "beans"];
-  final _waterMeasurements = <String>["g", "ml", "cups", "drops"];
 
   String _roaster = "";
   String _blend = "";
@@ -237,7 +218,7 @@ class NewBrewState extends State<NewBrew> {
                             _selectedRoastProfile = value.toString();
                           });
                         },
-                        items: _roastProfiles
+                        items: roastProfiles
                             .map((String profile) => DropdownMenuItem(
                                   value: profile,
                                   child: Text(profile),
@@ -257,7 +238,7 @@ class NewBrewState extends State<NewBrew> {
                             _selectedBrewMethod = value.toString();
                           });
                         },
-                        items: _brewMethods
+                        items: brewMethods
                             .map((String profile) => DropdownMenuItem(
                                   value: profile,
                                   child: Text(profile),
@@ -277,7 +258,7 @@ class NewBrewState extends State<NewBrew> {
                             _selectedGrindSize = value.toString();
                           });
                         },
-                        items: _grindSize
+                        items: grindSize
                             .map((String profile) => DropdownMenuItem(
                                   value: profile,
                                   child: Text(profile),
@@ -329,7 +310,7 @@ class NewBrewState extends State<NewBrew> {
                                   _selectedDoseMeasurement = value.toString();
                                 });
                               },
-                              items: _doseMeasurements
+                              items: doseMeasurements
                                   .map((String profile) => DropdownMenuItem(
                                         value: profile,
                                         child: Text(profile),
@@ -384,7 +365,7 @@ class NewBrewState extends State<NewBrew> {
                                   _selectedWaterMeasurement = value.toString();
                                 });
                               },
-                              items: _waterMeasurements
+                              items: waterMeasurements
                                   .map((String profile) => DropdownMenuItem(
                                         value: profile,
                                         child: Text(profile),
