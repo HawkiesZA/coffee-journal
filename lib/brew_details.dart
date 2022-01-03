@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'routes.dart';
 
 import 'model/brew.dart';
@@ -98,6 +99,23 @@ class BrewDetails extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text("${DateTime.fromMillisecondsSinceEpoch(args.time ?? 0, isUtc: true).format()}")
+                            ]
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              RatingBarIndicator(
+                                rating: args.rating?.toDouble() ?? 0,
+                                direction: Axis.horizontal,
+                                itemCount: 5,
+                                itemPadding: EdgeInsets.only(left: 4.0, right: 4.0, top: 8.0),
+                                itemSize: 25,
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                ),
+                              )
                             ]
                         ),
                       ]

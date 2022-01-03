@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'constants.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
 
@@ -258,6 +259,7 @@ class EditBrewState extends State<EditBrew> {
                         ),
                       ],
                     ),
+                    _buildRating(args),
                     ElevatedButton(
                       onPressed: () {
                         // Validate returns true if the form is valid, or false otherwise.
@@ -279,6 +281,26 @@ class EditBrewState extends State<EditBrew> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildRating(Brew brew) {
+    return RatingBar.builder(
+      initialRating: brew.rating?.toDouble() ?? 0,
+      minRating: 1,
+      direction: Axis.horizontal,
+      allowHalfRating: false,
+      itemCount: 5,
+      itemPadding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 12.0),
+      itemSize: 35,
+      itemBuilder: (context, _) => Icon(
+        Icons.star,
+        color: Colors.amber,
+      ),
+      onRatingUpdate: (rating) async {
+        brew.rating = rating.toInt();
+        await widget.brewBloc.updateBrew(brew);
+      },
     );
   }
 
