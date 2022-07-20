@@ -84,7 +84,7 @@ class BrewDetails extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Text("${Duration(seconds: args.duration ?? 0).strFormat()} with")
+                              Text("${Duration(seconds: args.duration ?? 0).strFormat()}")
                             ]
                         ),
                         Row(
