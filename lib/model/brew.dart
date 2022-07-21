@@ -1,3 +1,5 @@
+import '../extensions.dart';
+
 class Brew {
   int? id;
   String? roaster;
@@ -33,6 +35,10 @@ class Brew {
     rating: data['rating'],
     notes: data['notes'],
   );
+
+  String toString() {
+    return "I just brewed $blend roasted $roastProfile by $roaster $dose $doseMeasurement $grindSize ground brewed with $water $waterMeasurement water for ${Duration(seconds: duration ?? 0).strFormat()} $method at ${DateTime.fromMillisecondsSinceEpoch(time ?? 0, isUtc: true).format()}. $rating / 5";
+  }
 
   Map<String, dynamic> toDatabaseJson() => {
     "id": this.id,

@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:share_plus/share_plus.dart';
 import 'routes.dart';
 
 import 'model/brew.dart';
@@ -16,6 +16,15 @@ class BrewDetails extends StatelessWidget {
         appBar: AppBar(
           title: Text("Details for ${args.roaster}"),
           actions: [
+            Padding(
+              padding: const EdgeInsets.all(0.0),
+              child: IconButton(
+                icon: Icon(Icons.share, size: 24.0,),
+                onPressed: () {
+                  Share.share(args.toString());
+                },
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(0.0),
               child: IconButton(
