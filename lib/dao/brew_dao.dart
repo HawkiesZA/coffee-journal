@@ -45,8 +45,8 @@ class BrewDao {
         developer.log("Brew dao: Getting all brews with query $query");
         result = await db.query(brewTable,
             columns: columns,
-            where: 'roaster LIKE ? OR blend LIKE ? OR method LIKE ?',
-            whereArgs: ["%$query%", "%$query%", "%$query%"],
+            where: 'roaster LIKE ? OR blend LIKE ? OR method LIKE ? OR rating LIKE ?',
+            whereArgs: ["%$query%", "%$query%", "%$query%", "%$query%"],
             orderBy: 'time desc');
         developer.log('Got ${result.length} brews');
       }
