@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
 import 'package:coffee_journal/brew_details.dart';
 import 'package:coffee_journal/edit_brew.dart';
@@ -12,7 +14,11 @@ import 'extensions.dart';
 
 import 'dart:developer' as developer;
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
 

@@ -34,6 +34,7 @@ dependencies:
   wakelock: ^0.6.2
   flutter_rating_bar: ^4.0.0
   share_plus: ^4.0.10
+  firebase_core: ^2.13.0
 
 
 dev_dependencies:
