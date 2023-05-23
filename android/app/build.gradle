@@ -32,9 +32,19 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 32
+    namespace "com.hawkiesza.coffee_journal"
+    compileSdkVersion 33
     // if you get a complaint about "NDK not installed", go here: https://github.com/actions/virtual-environments and find out what version of the NDK the latest ubuntu image supports
     ndkVersion "23.2.8568313"
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -43,7 +53,7 @@ android {
     defaultConfig {
         applicationId "com.hawkiesza.coffee_journal"
         minSdkVersion 16
-        targetSdkVersion 32
+        targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

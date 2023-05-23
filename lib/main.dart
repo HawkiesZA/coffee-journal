@@ -4,7 +4,7 @@ import 'package:coffee_journal/edit_brew.dart';
 import 'package:coffee_journal/model/brew.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'main_search_delegate.dart';
 import 'new_brew.dart';
 import 'routes.dart';
 import 'brew_in_progress.dart';
@@ -57,14 +57,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   late final BrewBloc brewBloc;
   late ScrollController controller;
   bool fabIsVisible = true;
-  late SearchBar searchBar;
-
-  AppBar buildAppBar(BuildContext context) {
-    return new AppBar(
-        title: Text(widget.title),
-        actions: [searchBar.getSearchAction(context)]
-    );
-  }
+  List<Brew> brews = List.empty();
 
   void search(String searchString) {
     developer.log("Searching");
@@ -87,12 +80,6 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
       }
 
     });
-    searchBar = new SearchBar(
-        inBar: false,
-        setState: setState,
-        onSubmitted: search,
-        buildDefaultAppBar: buildAppBar
-    );
   }
 
   Widget _buildList() {
@@ -106,6 +93,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
 
   Widget _buildListItem(AsyncSnapshot<List<Brew>> snapshot) {
     if (snapshot.hasData) {
+      brews = snapshot.requireData;
       return snapshot.requireData.length != 0
           ? RefreshIndicator(
           onRefresh: () async {
@@ -259,7 +247,21 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   Widget build(BuildContext context) {
     developer.log("Building main widget");
     return Scaffold(
-      appBar: searchBar.build(context),
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              final searchValue = await showSearch(
+                  context: context,
+                  delegate: MainSearchDelegate(brews)
+              );
+              search(searchValue);
+            },
+            icon: const Icon(Icons.search),
+          )
+        ],
+      ),
       body: _buildList(),
       floatingActionButton: fabIsVisible ? FloatingActionButton(
         onPressed: _newBrew,
