@@ -1,7 +1,9 @@
 import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'auth.dart';
 import 'firebase_options.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
 import 'package:coffee_journal/brew_details.dart';
@@ -41,6 +43,17 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    FirebaseAuth.instance
+        .authStateChanges()
+        .listen((User? user) {
+      if (user == null) {
+        // user is signed out
+        signInWithGoogle();
+      } else {
+        // user is signed in, woot!
+      }
+    });
+
     return MaterialApp(
       title: 'Coffee Journal',
       theme: ThemeData(

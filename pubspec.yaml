@@ -36,6 +36,8 @@ dependencies:
   share_plus: ^4.0.10
   firebase_core: ^2.13.0
   firebase_crashlytics: ^3.3.1
+  firebase_auth: ^4.6.1
+  google_sign_in: ^6.1.1
 
 
 dev_dependencies:

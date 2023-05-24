@@ -56,7 +56,7 @@ android {
 
     defaultConfig {
         applicationId "com.hawkiesza.coffee_journal"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
