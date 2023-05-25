@@ -51,6 +51,7 @@ key.properties
 
 # firebase
 firebase.exe
+firebase_options.dart
 
 # Google services
 google-services.json
