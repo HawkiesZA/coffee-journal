@@ -15,7 +15,7 @@ class BrewBloc {
     getBrews();
   }
 
-  Future<Brew> getBrewById(int id) async {
+  Future<Brew> getBrewById(String id) async {
     return await _brewRepository.getBrewById(id);
   }
 
@@ -23,18 +23,34 @@ class BrewBloc {
     return await _brewRepository.getBrewByRoasterAndBlend(roaster, blend);
   }
 
-  getBrews({String? query}) async {
+  getBrews() async {
     //sink is a way of adding data reactively to the stream
     //by registering a new event
-    developer.log("Getting all brews with query $query");
-    _brewController.sink.add(await _brewRepository.getAllBrews(query: query));
+    developer.log("Getting all brews");
+    _brewController.sink.add(await _brewRepository.getAllBrews());
   }
 
-  Future<int> addBrew(Brew brew) async {
+  // TODO: remove this in the next version
+  Future<List<Brew>> getBrewsSqlite() async {
+    return await _brewRepository.getBrewsSqlite();
+  }
+
+  deleteBrewSqlite(String id) async {
+    await _brewRepository.deleteBrewSqlite(id);
+  }
+
+  searchBrews({required String query}) async {
+    //sink is a way of adding data reactively to the stream
+    //by registering a new event
+    developer.log("Searching brews");
+    _brewController.sink.add(await _brewRepository.searchBrews(query: query));
+  }
+
+  Future<void> addBrew(Brew brew) async {
     developer.log("Adding brew");
     var result = await _brewRepository.insertBrew(brew);
     getBrews();
-    developer.log("Brew inserted with result $result");
+    developer.log("Brew inserted");
     return result;
   }
 
@@ -43,7 +59,7 @@ class BrewBloc {
     getBrews();
   }
 
-  deleteBrewById(int id) async {
+  deleteBrewById(String id) async {
     await _brewRepository.deleteBrewById(id);
     getBrews();
   }

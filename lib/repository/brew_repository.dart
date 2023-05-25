@@ -3,15 +3,21 @@ import 'package:coffee_journal/model/brew.dart';
 class BrewRepository {
   final brewDao = BrewDao();
 
-  Future getBrewById(int id) => brewDao.getBrewById(id);
+  Future getBrewById(String id) => brewDao.getBrewById(id);
 
   Future getBrewByRoasterAndBlend(String? roaster, String? blend) => brewDao.getBrewByRoasterAndBlend(roaster, blend);
 
-  Future getAllBrews({ List<String>? columns, String? query }) => brewDao.getBrews(columns: columns, query: query);
+  Future getAllBrews() => brewDao.getBrews();
 
-  Future<int> insertBrew(Brew brew) => brewDao.createBrew(brew);
+  // TODO: remove this in the next version
+  Future getBrewsSqlite() => brewDao.getBrewsSqlite();
+  Future deleteBrewSqlite(String id) => brewDao.deleteBrewSqlite(id);
+
+  Future searchBrews({required String query}) => brewDao.searchBrews(query: query);
+
+  Future<void> insertBrew(Brew brew) => brewDao.createBrew(brew);
 
   Future updateBrew(Brew brew) => brewDao.updateBrew(brew);
 
-  Future deleteBrewById(int id) => brewDao.deleteBrew(id);
+  Future deleteBrewById(String id) => brewDao.deleteBrew(id);
 }

@@ -43,16 +43,6 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance
-        .authStateChanges()
-        .listen((User? user) {
-      if (user == null) {
-        // user is signed out
-        signInWithGoogle();
-      } else {
-        // user is signed in, woot!
-      }
-    });
 
     return MaterialApp(
       title: 'Coffee Journal',
@@ -96,7 +86,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
 
   void search(String searchString) {
     developer.log("Searching");
-    brewBloc.getBrews(query: searchString);
+    brewBloc.searchBrews(query: searchString);
   }
 
   @override
@@ -114,6 +104,23 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
         });
       }
 
+    });
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+      if (user == null) {
+        // user is signed out
+        signInWithGoogle();
+      } else {
+        // user is signed in, woot!
+        // migrate data from sqlite to firebase // TODO: remove this in the next version
+        final brews = await brewBloc.getBrewsSqlite();
+        if (brews.isNotEmpty) {
+          for (var brew in brews) {
+            brewBloc.addBrew(brew);
+            brewBloc.deleteBrewSqlite(brew.id!);
+          }
+        }
+      }
     });
   }
 
@@ -190,7 +197,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
 
   Widget _buildRow(Brew brew) {
     return Dismissible(
-      key: ValueKey<int>(brew.id!),
+      key: ValueKey<String>(brew.id!),
       background: Container(
         color: Colors.red,
       ),

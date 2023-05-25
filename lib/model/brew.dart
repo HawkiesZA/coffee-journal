@@ -1,7 +1,8 @@
 import '../extensions.dart';
 
 class Brew {
-  int? id;
+  String? id;
+  String? creator;
   String? roaster;
   String? blend;
   String? roastProfile;
@@ -16,11 +17,12 @@ class Brew {
   int? rating;
   String? notes;
 
-  Brew({ this.id, this.roaster, this.blend, this.roastProfile, this.method,
+  Brew({ this.id, this.creator, this.roaster, this.blend, this.roastProfile, this.method,
     this.grindSize, this.dose, this.doseMeasurement, this.water,
     this.waterMeasurement, this.duration, this.time, this.rating, this.notes });
   factory Brew.fromDatabaseJson(Map<String, dynamic> data) => Brew(
-    id: data['id'],
+    id: data['id'].toString(),
+    creator: data['creator'],
     roaster: data['roaster'],
     blend: data['blend'],
     roastProfile: data['roast_profile'],
@@ -42,6 +44,7 @@ class Brew {
 
   Map<String, dynamic> toDatabaseJson() => {
     "id": this.id,
+    "creator": this.creator,
     "roaster": this.roaster,
     "blend": this.blend,
     "roast_profile": this.roastProfile,
