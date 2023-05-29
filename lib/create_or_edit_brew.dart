@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'routes.dart';
 import 'extensions.dart';
 import 'constants.dart';
@@ -7,24 +9,25 @@ import 'constants.dart';
 import 'package:coffee_journal/model/brew.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
 
-class NewBrew extends StatefulWidget {
-  NewBrew({Key? key}) : super(key: key);
+class CreateOrEditBrew extends StatefulWidget {
+  CreateOrEditBrew({Key? key}) : super(key: key);
 
   @override
-  NewBrewState createState() {
-    return NewBrewState();
+  CreateOrEditBrewState createState() {
+    return CreateOrEditBrewState();
   }
 }
 
 // Define a corresponding State class.
 // This class holds data related to the form.
-class NewBrewState extends State<NewBrew> {
+class CreateOrEditBrewState extends State<CreateOrEditBrew> {
   // Create a global key that uniquely identifies the Form widget
   // and allows validation of the form.
   //
   // Note: This is a `GlobalKey<FormState>`,
   // not a GlobalKey<MyCustomFormState>.
   late final BrewBloc brewBloc;
+  final FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
 
   String _roaster = "";
@@ -52,22 +55,35 @@ class NewBrewState extends State<NewBrew> {
   @override
   Widget build(BuildContext context) {
     // Build a Form widget using the _formKey created above.
+    // if this is an edit then this will contain something
+    final args = ModalRoute.of(context)!.settings.arguments as Brew?;
     return Scaffold(
         appBar: AppBar(
-          title: Text("New Brew"),
+          title: (args == null) ? Text("New Brew") : Text("Edit Brew"),
         ),
         body: StreamBuilder(
             stream: brewBloc.brews,
             builder:
                 (BuildContext context, AsyncSnapshot<List<Brew>> snapshot) {
-              return _buildForm(snapshot);
+              return _buildForm(snapshot, args);
             }));
   }
 
   static String _displayStringForRoaster(Brew option) => option.roaster ?? '';
   static String _displayStringForBlend(Brew option) => option.blend ?? '';
 
-  Widget _buildForm(AsyncSnapshot<List<Brew>> snapshot) {
+  Widget _buildForm(AsyncSnapshot<List<Brew>> snapshot, Brew? args) {
+    if (args != null) {
+      _roaster = args.roaster ?? _roaster;
+      _blend = args.blend ?? _blend;
+      _selectedRoastProfile = args.roastProfile ?? _selectedRoastProfile;
+      _selectedBrewMethod = args.method ?? _selectedBrewMethod;
+      _selectedGrindSize = args.grindSize ?? _selectedGrindSize;
+      _dose = args.dose ?? _dose;
+      _selectedDoseMeasurement = args.doseMeasurement ?? _selectedDoseMeasurement;
+      _water = args.water ?? _water;
+      _selectedWaterMeasurement = args.waterMeasurement ?? _selectedWaterMeasurement;
+    }
     return Form(
       key: _formKey,
       child: Padding(
@@ -92,6 +108,7 @@ class NewBrewState extends State<NewBrew> {
                         }
                         return List.generate(0, (index) => Brew());
                       },
+                      initialValue: TextEditingValue(text: _roaster),
                       displayStringForOption: _displayStringForRoaster,
                       fieldViewBuilder: (BuildContext context,
                           TextEditingController textEditingController,
@@ -104,7 +121,7 @@ class NewBrewState extends State<NewBrew> {
                             onFieldSubmitted();
                           },
                           decoration:
-                              const InputDecoration(labelText: "Roaster"),
+                          const InputDecoration(labelText: "Roaster"),
                           // The validator receives the text that the user has entered.
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -157,6 +174,7 @@ class NewBrewState extends State<NewBrew> {
                         }
                         return List.generate(0, (index) => Brew());
                       },
+                      initialValue: TextEditingValue(text: _blend),
                       displayStringForOption: _displayStringForBlend,
                       fieldViewBuilder: (BuildContext context,
                           TextEditingController textEditingController,
@@ -206,7 +224,7 @@ class NewBrewState extends State<NewBrew> {
                     ),
                     DropdownButtonFormField(
                         decoration:
-                            const InputDecoration(labelText: "Roast Profile"),
+                        const InputDecoration(labelText: "Roast Profile"),
                         value: _selectedRoastProfile,
                         onChanged: (value) {
                           setState(() {
@@ -220,13 +238,13 @@ class NewBrewState extends State<NewBrew> {
                         },
                         items: roastProfiles
                             .map((String profile) => DropdownMenuItem(
-                                  value: profile,
-                                  child: Text(profile),
-                                ))
+                          value: profile,
+                          child: Text(profile),
+                        ))
                             .toList()),
                     DropdownButtonFormField(
                         decoration:
-                            const InputDecoration(labelText: "Brew Method"),
+                        const InputDecoration(labelText: "Brew Method"),
                         value: _selectedBrewMethod,
                         onChanged: (value) {
                           setState(() {
@@ -240,13 +258,13 @@ class NewBrewState extends State<NewBrew> {
                         },
                         items: brewMethods
                             .map((String profile) => DropdownMenuItem(
-                                  value: profile,
-                                  child: Text(profile),
-                                ))
+                          value: profile,
+                          child: Text(profile),
+                        ))
                             .toList()),
                     DropdownButtonFormField(
                         decoration:
-                            const InputDecoration(labelText: "Grind Size"),
+                        const InputDecoration(labelText: "Grind Size"),
                         value: _selectedGrindSize,
                         onChanged: (value) {
                           setState(() {
@@ -260,9 +278,9 @@ class NewBrewState extends State<NewBrew> {
                         },
                         items: grindSize
                             .map((String profile) => DropdownMenuItem(
-                                  value: profile,
-                                  child: Text(profile),
-                                ))
+                          value: profile,
+                          child: Text(profile),
+                        ))
                             .toList()),
                     Row(
                       mainAxisSize: MainAxisSize.min,
@@ -275,8 +293,9 @@ class NewBrewState extends State<NewBrew> {
                           child: Padding(
                             padding: const EdgeInsets.only(right: 40.0),
                             child: TextFormField(
+                              initialValue: _dose > 0 ? _dose.toString() : "",
                               decoration:
-                                  const InputDecoration(labelText: "Dose"),
+                              const InputDecoration(labelText: "Dose"),
                               // The validator receives the text that the user has entered.
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -312,9 +331,9 @@ class NewBrewState extends State<NewBrew> {
                               },
                               items: doseMeasurements
                                   .map((String profile) => DropdownMenuItem(
-                                        value: profile,
-                                        child: Text(profile),
-                                      ))
+                                value: profile,
+                                child: Text(profile),
+                              ))
                                   .toList()),
                         ),
                       ],
@@ -330,8 +349,9 @@ class NewBrewState extends State<NewBrew> {
                           child: Padding(
                             padding: const EdgeInsets.only(right: 40.0),
                             child: TextFormField(
+                              initialValue: _water > 0 ? _water.toString() : "",
                               decoration:
-                                  const InputDecoration(labelText: "Water"),
+                              const InputDecoration(labelText: "Water"),
                               // The validator receives the text that the user has entered.
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -367,35 +387,15 @@ class NewBrewState extends State<NewBrew> {
                               },
                               items: waterMeasurements
                                   .map((String profile) => DropdownMenuItem(
-                                        value: profile,
-                                        child: Text(profile),
-                                      ))
+                                value: profile,
+                                child: Text(profile),
+                              ))
                                   .toList()),
                         ),
                       ],
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Validate returns true if the form is valid, or false otherwise.
-                        if (_formKey.currentState!.validate()) {
-                          // If the form is valid, display a snackbar. In the real world,
-                          // you'd often call a server or save the information in a database.
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Starting Brew'),
-                              action: SnackBarAction(
-                                label: 'Undo',
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ),
-                          );
-                          _startBrew();
-                        }
-                      },
-                      child: const Text('Start Brewing'),
-                    ),
+                    if (args != null) _rating(args),
+                    if (args != null) _saveBrewButton(args.id) else _startBrewButton(),
                   ],
                 ),
               ),
@@ -406,8 +406,88 @@ class NewBrewState extends State<NewBrew> {
     );
   }
 
-  void _startBrew() async {
+  Widget _startBrewButton() => ElevatedButton(
+    onPressed: () {
+      // Validate returns true if the form is valid, or false otherwise.
+      if (_formKey.currentState!.validate()) {
+        // If the form is valid, display a snackbar. In the real world,
+        // you'd often call a server or save the information in a database.
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Starting Brew'),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        );
+        _startBrew();
+      }
+    },
+    child: const Text('Start Brewing'),
+  );
+
+  Widget _saveBrewButton(String? id) => ElevatedButton(
+    onPressed: () {
+      // Validate returns true if the form is valid, or false otherwise.
+      if (_formKey.currentState!.validate()) {
+        // If the form is valid, display a snackbar. In the real world,
+        // you'd often call a server or save the information in a database.
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Saving Brew')),
+        );
+        _saveBrew(id);
+      }
+    },
+    child: const Text('Save Brew'),
+  );
+
+  Widget _rating(Brew brew) {
+    return RatingBar.builder(
+      initialRating: brew.rating?.toDouble() ?? 0,
+      minRating: 1,
+      direction: Axis.horizontal,
+      allowHalfRating: false,
+      itemCount: 5,
+      itemPadding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 12.0),
+      itemSize: 35,
+      itemBuilder: (context, _) => Icon(
+        Icons.star,
+        color: Colors.amber,
+      ),
+      onRatingUpdate: (rating) async {
+        brew.rating = rating.toInt();
+        await brewBloc.updateBrew(brew);
+      },
+    );
+  }
+
+  void _saveBrew(String? id) async {
+    final creator = auth.currentUser!.uid;
     var brew = Brew(
+      id: id,
+      creator: creator,
+      roaster: _roaster.trim(),
+      blend: _blend.trim(),
+      roastProfile: _selectedRoastProfile,
+      method: _selectedBrewMethod,
+      grindSize: _selectedGrindSize,
+      dose: _dose,
+      doseMeasurement: _selectedDoseMeasurement,
+      water: _water,
+      waterMeasurement: _selectedWaterMeasurement,
+      time: DateTime.now().toUtc().millisecondsSinceEpoch,
+    );
+    await brewBloc.updateBrew(brew);
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+  }
+
+  void _startBrew() async {
+    final creator = auth.currentUser!.uid;
+    var brew = Brew(
+      creator: creator,
       roaster: _roaster.trim(),
       blend: _blend.trim(),
       roastProfile: _selectedRoastProfile,

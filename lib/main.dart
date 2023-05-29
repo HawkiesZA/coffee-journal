@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:coffee_journal/create_or_edit_brew.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -7,12 +8,10 @@ import 'auth.dart';
 import 'firebase_options.dart';
 import 'package:coffee_journal/bloc/brew_bloc.dart';
 import 'package:coffee_journal/brew_details.dart';
-import 'package:coffee_journal/edit_brew.dart';
 import 'package:coffee_journal/model/brew.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'main_search_delegate.dart';
-import 'new_brew.dart';
 import 'routes.dart';
 import 'brew_in_progress.dart';
 import 'extensions.dart';
@@ -51,10 +50,10 @@ class MyApp extends StatelessWidget {
       ),
       home: CoffeeJournal(title: 'Coffee Journal'),
       routes: <String, WidgetBuilder> {
-        brewDetailsRoute: (BuildContext context) => BrewDetails(),
-        newBrewRoute: (BuildContext context) => NewBrew(),
+        brewDetails: (BuildContext context) => BrewDetails(),
+        newBrew: (BuildContext context) => CreateOrEditBrew(),
         brewInProgress: (BuildContext context) => BrewInProgress(),
-        editBrew: (BuildContext context) => EditBrew(),
+        editBrew: (BuildContext context) => CreateOrEditBrew(),
       },
     );
   }
@@ -279,7 +278,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
                 ],
               )
           ),
-          onTap: () => Navigator.of(context).pushNamed(brewDetailsRoute, arguments: brew),
+          onTap: () => Navigator.of(context).pushNamed(brewDetails, arguments: brew),
         ),
       ),
     ) ;
@@ -314,7 +313,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   }
 
   void _newBrew() {
-    Navigator.of(context).pushNamed(newBrewRoute).then((_) => _refresh());
+    Navigator.of(context).pushNamed(newBrew).then((_) => _refresh());
   }
 
   void _refresh() {
