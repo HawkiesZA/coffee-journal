@@ -56,6 +56,24 @@ class _BrewInProgressState extends State<BrewInProgress> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        "${args.roaster} : ${args.blend}",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        "${args.dose}${args.doseMeasurement} coffee with ${args.water}${args.waterMeasurement} water",
+                        style: const TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
                     if (snapshot.hasData)
                       Padding(
                         padding: const EdgeInsets.all(8),
