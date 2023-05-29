@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'main.dart';
 import 'routes.dart';
 import 'extensions.dart';
 import 'constants.dart';
@@ -32,13 +33,13 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
 
   String _roaster = "";
   String _blend = "";
-  String _selectedRoastProfile = "Light";
-  String _selectedBrewMethod = "Aeropress";
-  String _selectedGrindSize = "Coarse";
+  String _selectedRoastProfile = sp.getString(PrefKeys.default_roast_profile.name) ?? roastProfiles[0];
+  String _selectedBrewMethod = sp.getString(PrefKeys.default_brew_method.name) ?? brewMethods[0];
+  String _selectedGrindSize = sp.getString(PrefKeys.default_grind_size.name) ?? grindSizes[0];
   int _dose = 0;
-  String _selectedDoseMeasurement = "g";
+  String _selectedDoseMeasurement = sp.getString(PrefKeys.default_dose_measurement.name) ?? doseMeasurements[0];
   int _water = 0;
-  String _selectedWaterMeasurement = "g";
+  String _selectedWaterMeasurement = sp.getString(PrefKeys.default_water_measurement.name) ?? waterMeasurements[0];
 
   @override
   initState() {
@@ -224,7 +225,7 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
                     ),
                     DropdownButtonFormField(
                         decoration:
-                        const InputDecoration(labelText: "Roast Profile"),
+                            const InputDecoration(labelText: "Roast Profile"),
                         value: _selectedRoastProfile,
                         onChanged: (value) {
                           setState(() {
@@ -238,10 +239,11 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
                         },
                         items: roastProfiles
                             .map((String profile) => DropdownMenuItem(
-                          value: profile,
-                          child: Text(profile),
-                        ))
-                            .toList()),
+                                  value: profile,
+                                  child: Text(profile),
+                                ))
+                            .toList()
+                    ),
                     DropdownButtonFormField(
                         decoration:
                         const InputDecoration(labelText: "Brew Method"),
@@ -276,7 +278,7 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
                             _selectedGrindSize = value.toString();
                           });
                         },
-                        items: grindSize
+                        items: grindSizes
                             .map((String profile) => DropdownMenuItem(
                           value: profile,
                           child: Text(profile),
