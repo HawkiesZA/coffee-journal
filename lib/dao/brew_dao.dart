@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer' as developer;
 
-import 'package:coffee_journal/database_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:coffee_journal/model/brew.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,7 +13,6 @@ class BrewNotFoundException implements Exception {
 }
 
 class BrewDao {
-  final dbHelper = DatabaseHelper.dbHelper;
   final FirebaseAuth auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
   static const prod_collection = "brews";
@@ -82,33 +80,6 @@ class BrewDao {
         ? brewData.map((item) => Brew.fromDatabaseJson(item)).toList()
         : [];
     return brews;
-  }
-
-  // TODO: remove this in the next version
-  Future<List<Brew>> getBrewsSqlite({ List<String>? columns, String? query }) async {
-    final db = await dbHelper.database;
-    final creator = auth.currentUser!.uid;
-
-    List<Map<String, dynamic>> result = List.empty();
-    result = await db.query(brewTable, columns: columns, orderBy: 'time desc');
-    List<Brew> brews = result.isNotEmpty
-        ? result.map((item) {
-            final newItem = {
-              ...item,
-              'creator': creator
-            };
-            return Brew.fromDatabaseJson(newItem);
-          }).toList()
-        : [];
-    return brews;
-  }
-
-  Future<int> deleteBrewSqlite(String id) async {
-    developer.log("Deleting brew $id");
-    final db = await dbHelper.database;
-    var result = await db.delete(brewTable, where: 'id = ?', whereArgs: [id]);
-
-    return result;
   }
 
   Future<List<Brew>> searchBrews({ required String query }) async {

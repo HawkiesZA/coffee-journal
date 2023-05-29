@@ -597,22 +597,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
-  sqflite:
-    dependency: "direct main"
-    description:
-      name: sqflite
-      sha256: b3a8307b9519af28518e271e548594bdc435225fc77e8fb22e71a296c69281cf
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3+1"
-  sqflite_common:
-    dependency: transitive
-    description:
-      name: sqflite_common
-      sha256: "4aa3b917d48f9a3161419efa4a901e33a38721bf9a7465e7e07d2d6ef8895276"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.4.0"
   stack_trace:
     dependency: transitive
     description:
@@ -645,14 +629,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  synchronized:
-    dependency: transitive
-    description:
-      name: synchronized
-      sha256: "7b530acd9cb7c71b0019a1e7fa22c4105e675557a4400b6a401c71c5e0ade1ac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.0.0+3"
   term_glyph:
     dependency: transitive
     description:

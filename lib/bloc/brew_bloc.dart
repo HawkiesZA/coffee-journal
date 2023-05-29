@@ -30,15 +30,6 @@ class BrewBloc {
     _brewController.sink.add(await _brewRepository.getAllBrews());
   }
 
-  // TODO: remove this in the next version
-  Future<List<Brew>> getBrewsSqlite() async {
-    return await _brewRepository.getBrewsSqlite();
-  }
-
-  deleteBrewSqlite(String id) async {
-    await _brewRepository.deleteBrewSqlite(id);
-  }
-
   searchBrews({required String query}) async {
     //sink is a way of adding data reactively to the stream
     //by registering a new event

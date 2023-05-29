@@ -9,10 +9,6 @@ class BrewRepository {
 
   Future getAllBrews() => brewDao.getBrews();
 
-  // TODO: remove this in the next version
-  Future getBrewsSqlite() => brewDao.getBrewsSqlite();
-  Future deleteBrewSqlite(String id) => brewDao.deleteBrewSqlite(id);
-
   Future searchBrews({required String query}) => brewDao.searchBrews(query: query);
 
   Future<void> insertBrew(Brew brew) => brewDao.createBrew(brew);

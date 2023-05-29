@@ -118,14 +118,6 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
         signInWithGoogle();
       } else {
         // user is signed in, woot!
-        // migrate data from sqlite to firebase // TODO: remove this in the next version
-        final brews = await brewBloc.getBrewsSqlite();
-        if (brews.isNotEmpty) {
-          for (var brew in brews) {
-            brewBloc.addBrew(brew);
-            brewBloc.deleteBrewSqlite(brew.id!);
-          }
-        }
       }
     });
   }
