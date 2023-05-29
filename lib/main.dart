@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Coffee Journal',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blueGrey,
       ),
       home: CoffeeJournal(title: 'Coffee Journal'),
       routes: <String, WidgetBuilder> {
