@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:coffee_journal/model/brew.dart';
 
-import 'dart:developer' as developer;
-
 class MainSearchDelegate extends SearchDelegate {
   List<Brew> brews = List.empty();
   List<String> searchTerms = [];
 
   MainSearchDelegate(this.brews) {
-    developer.log('MainSearchDelegate');
     for (var brew in brews) {
-      developer.log(brew.toString());
       var roaster = brew.roaster;
       var blend = brew.blend;
       var method = brew.method;
@@ -24,8 +20,9 @@ class MainSearchDelegate extends SearchDelegate {
       if (method != null && !searchTerms.contains(method)) {
         searchTerms.add(method);
       }
-      if (rating != null && !searchTerms.contains(rating as String)) {
-        searchTerms.add(rating as String);
+      var stringRating = rating?.toString();
+      if (stringRating != null && !searchTerms.contains(stringRating)) {
+        searchTerms.add(stringRating);
       }
     }
   }
