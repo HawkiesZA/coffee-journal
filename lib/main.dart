@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:coffee_journal/bloc/ibrew_bloc.dart';
 import 'package:coffee_journal/create_or_edit_brew.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -42,10 +43,16 @@ Future<void> main() async {
 
   sp = await SharedPreferences.getInstance();
 
-  runApp(MyApp());
+  runApp(MyApp(brewBloc: BrewBloc(), firebaseAuth: FirebaseAuth.instance, signInWithGoogle: signInWithGoogle,));
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key, required this.brewBloc, required this.signInWithGoogle, required this.firebaseAuth});
+
+  final IBrewBloc brewBloc;
+  final Function signInWithGoogle;
+  final FirebaseAuth firebaseAuth;
+
   @override
   Widget build(BuildContext context) {
 
@@ -54,7 +61,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: CoffeeJournal(title: 'Coffee Journal'),
+      home: CoffeeJournal(title: 'Coffee Journal', brewBloc: brewBloc, firebaseAuth: firebaseAuth, signInWithGoogle: signInWithGoogle),
       routes: <String, WidgetBuilder> {
         brewDetails: (BuildContext context) => BrewDetails(),
         newBrew: (BuildContext context) => CreateOrEditBrew(),
@@ -66,7 +73,7 @@ class MyApp extends StatelessWidget {
 }
 
 class CoffeeJournal extends StatefulWidget {
-  CoffeeJournal({Key? key, required this.title}) : super(key: key);
+  CoffeeJournal({Key? key, required this.title, required this.brewBloc, required this.firebaseAuth, required this.signInWithGoogle}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -78,27 +85,24 @@ class CoffeeJournal extends StatefulWidget {
   // always marked "final".
 
   final String title;
+  final IBrewBloc brewBloc;
+  final Function signInWithGoogle;
+  final FirebaseAuth firebaseAuth;
 
   @override
   _CoffeeJournalState createState() => _CoffeeJournalState();
 }
 
 class _CoffeeJournalState extends State<CoffeeJournal> {
-  late final BrewBloc brewBloc;
   late ScrollController controller;
   bool fabIsVisible = true;
   List<Brew> brews = List.empty();
   int _selectedIndex = 0;
 
-  void search(String searchString) {
-    developer.log("Searching");
-    brewBloc.searchBrews(query: searchString);
-  }
-
   @override
   initState() {
     super.initState();
-    brewBloc = BrewBloc();
+    widget.brewBloc.getBrews();
     controller = ScrollController();
     controller.addListener(() {
       if ((controller.position.userScrollDirection == ScrollDirection.forward && !fabIsVisible) ||
@@ -112,10 +116,10 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
 
     });
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
+    widget.firebaseAuth.authStateChanges().listen((User? user) async {
       if (user == null) {
         // user is signed out
-        signInWithGoogle();
+        widget.signInWithGoogle();
       } else {
         // user is signed in, woot!
       }
@@ -135,7 +139,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
                   context: context,
                   delegate: MainSearchDelegate(brews)
               );
-              search(searchValue);
+              _search(searchValue);
             },
             icon: const Icon(Icons.search),
           )
@@ -175,7 +179,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   Widget _buildList() {
     developer.log("Building list");
     return StreamBuilder(
-        stream: brewBloc.brews,
+        stream: widget.brewBloc.brews,
         builder: (BuildContext context, AsyncSnapshot<List<Brew>> snapshot) {
           return _buildListItem(snapshot);
         });
@@ -228,7 +232,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   }
 
   Widget loadingData() {
-    brewBloc.getBrews();
+    widget.brewBloc.getBrews();
     return Container(
       child: Center(
         child: Column(
@@ -250,21 +254,21 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
         color: Colors.red,
       ),
       onDismissed: (DismissDirection direction) async {
-        var lastDeletedBrew = await brewBloc.getBrewById(brew.id!);
+        var lastDeletedBrew = await widget.brewBloc.getBrewById(brew.id!);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Brew deleted'),
             action: SnackBarAction(
               label: 'Undo',
               onPressed: () {
-                brewBloc.addBrew(lastDeletedBrew);
+                widget.brewBloc.addBrew(lastDeletedBrew);
               },
             ),
           ),
         );
         // no need to call setState here because the db refresh will do that
         // for us
-        brewBloc.deleteBrewById(brew.id!);
+        widget.brewBloc.deleteBrewById(brew.id!);
       },
       child: Card(
         shape: RoundedRectangleBorder(
@@ -344,8 +348,13 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   }
 
   void _refresh() {
-    brewBloc.getBrews();
+    widget.brewBloc.getBrews();
     setState(() {});
+  }
+
+  void _search(String searchString) {
+    developer.log("Searching");
+    widget.brewBloc.searchBrews(query: searchString);
   }
 
   Widget _buildSettings() {
@@ -428,7 +437,7 @@ class _CoffeeJournalState extends State<CoffeeJournal> {
   @override
   void dispose() {
     super.dispose();
-    brewBloc.dispose();
+    widget.brewBloc.dispose();
   }
 
   Future showTextInputDialog({required String spKey, required String hint, required List<String> items}) async {

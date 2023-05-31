@@ -46,66 +46,78 @@ class BrewDao {
 
   Future<Brew> getBrewByRoasterAndBlend(String? roaster, String? blend) async {
     developer.log("Get brew $roaster, $blend");
-    final creator = auth.currentUser!.uid;
-    final dbBrew = await db.collection(collection)
-        .where(Filter.and(
-        Filter("creator", isEqualTo: creator),
-        Filter("roaster", isEqualTo: roaster),
-        Filter("blend", isEqualTo: blend)
-    ))
-        .orderBy("time", descending: true)
-        .limit(1)
-        .get();
+    final creator = auth.currentUser?.uid;
+    if (creator != null) {
+      final dbBrew = await db
+          .collection(collection)
+          .where(Filter.and(
+              Filter("creator", isEqualTo: creator),
+              Filter("roaster", isEqualTo: roaster),
+              Filter("blend", isEqualTo: blend)))
+          .orderBy("time", descending: true)
+          .limit(1)
+          .get();
 
-    final brewDoc = dbBrew.docs.first;
-    final brew = brewDoc.data();
-    brew['id'] = brewDoc.id;
+      final brewDoc = dbBrew.docs.first;
+      final brew = brewDoc.data();
+      brew['id'] = brewDoc.id;
 
-    return Brew.fromDatabaseJson(brew);
+      return Brew.fromDatabaseJson(brew);
+    }
+    return Brew();
   }
 
   Future<List<Brew>> getBrews() async {
     developer.log("Getting all brews");
-    final creator = auth.currentUser!.uid;
-    final dbBrews = await db.collection(collection)
-        .where("creator", isEqualTo: creator).get();
+    final creator = auth.currentUser?.uid;
+    if (creator != null) {
+      final dbBrews = await db
+          .collection(collection)
+          .where("creator", isEqualTo: creator)
+          .get();
 
-    List<Map<String, dynamic>> brewData = dbBrews.docs.map((doc) {
-      final brew = doc.data();
-      brew['id'] = doc.id;
-      return brew;
-    }).toList();
+      List<Map<String, dynamic>> brewData = dbBrews.docs.map((doc) {
+        final brew = doc.data();
+        brew['id'] = doc.id;
+        return brew;
+      }).toList();
 
-    List<Brew> brews = brewData.isNotEmpty
-        ? brewData.map((item) => Brew.fromDatabaseJson(item)).toList()
-        : [];
-    return brews;
+      List<Brew> brews = brewData.isNotEmpty
+          ? brewData.map((item) => Brew.fromDatabaseJson(item)).toList()
+          : [];
+      return brews;
+    }
+    return [];
   }
 
   Future<List<Brew>> searchBrews({ required String query }) async {
     developer.log("Searching brews with query: $query");
-    final creator = auth.currentUser!.uid;
-    final dbBrews = await db.collection(collection)
-        .where("creator", isEqualTo: creator)
-        .where(Filter.or(
-          Filter("roaster", isEqualTo: query),
-          Filter("blend", isEqualTo: query),
-          Filter("method", isEqualTo: query),
-          Filter("rating", isEqualTo: query),
-        ))
-        .orderBy("time", descending: true)
-        .get();
+    final creator = auth.currentUser?.uid;
+    if (creator != null) {
+      final dbBrews = await db
+          .collection(collection)
+          .where("creator", isEqualTo: creator)
+          .where(Filter.or(
+            Filter("roaster", isEqualTo: query),
+            Filter("blend", isEqualTo: query),
+            Filter("method", isEqualTo: query),
+            Filter("rating", isEqualTo: query),
+          ))
+          .orderBy("time", descending: true)
+          .get();
 
-    List<Map<String, dynamic>> brewData = dbBrews.docs.map((doc) {
-      final brew = doc.data();
-      brew['id'] = doc.id;
-      return brew;
-    }).toList();
+      List<Map<String, dynamic>> brewData = dbBrews.docs.map((doc) {
+        final brew = doc.data();
+        brew['id'] = doc.id;
+        return brew;
+      }).toList();
 
-    List<Brew> brews = brewData.isNotEmpty
-        ? brewData.map((item) => Brew.fromDatabaseJson(item)).toList()
-        : [];
-    return brews;
+      List<Brew> brews = brewData.isNotEmpty
+          ? brewData.map((item) => Brew.fromDatabaseJson(item)).toList()
+          : [];
+      return brews;
+    }
+    return [];
   }
 
   Future<void> updateBrew(Brew brew) async {
