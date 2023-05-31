@@ -74,6 +74,7 @@ class BrewDao {
       final dbBrews = await db
           .collection(collection)
           .where("creator", isEqualTo: creator)
+          .orderBy("time", descending: true)
           .get();
 
       List<Map<String, dynamic>> brewData = dbBrews.docs.map((doc) {

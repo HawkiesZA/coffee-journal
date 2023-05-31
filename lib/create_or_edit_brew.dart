@@ -45,6 +45,7 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
   initState() {
     super.initState();
     brewBloc = BrewBloc();
+    brewBloc.getBrews();
   }
 
   @override
