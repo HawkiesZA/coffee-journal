@@ -8,12 +8,6 @@ import 'extensions.dart';
 import 'constants.dart';
 
 import 'package:coffee_journal/model/brew.dart';
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
 import 'package:coffee_journal/bloc/brew_bloc.dart';
 
 class CreateOrEditBrew extends StatefulWidget {
