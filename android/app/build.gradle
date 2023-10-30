@@ -11,7 +11,7 @@ if (flutterRoot == null) {
     throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
-def flutterVersionCode = Integer.parseInt(new Date().format("yyyyMMddHHmm"))
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
 }
@@ -58,7 +58,7 @@ android {
         applicationId "com.hawkiesza.coffee_journal"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode flutterVersionCode
+        versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
     signingConfigs {
