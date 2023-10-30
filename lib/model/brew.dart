@@ -63,21 +63,5 @@ class Brew {
     return "I just brewed $blend roasted $roastProfile by $roaster $dose $doseMeasurement $grindSize ground brewed with $water $waterMeasurement water for ${Duration(seconds: duration ?? 0).strFormat()} $method at ${DateTime.fromMillisecondsSinceEpoch(time ?? 0, isUtc: true).format()}. $rating / 5";
   }
 
-  Map<String, dynamic> toDatabaseJson() => {
-    "id": this.id,
-    "creator": this.creator,
-    "roaster": this.roaster,
-    "blend": this.blend,
-    "roast_profile": this.roastProfile,
-    "method": this.method,
-    "grind_size": this.grindSize,
-    "dose": this.dose,
-    "dose_measurement": this.doseMeasurement,
-    "water": this.water,
-    "water_measurement": this.waterMeasurement,
-    "duration": this.duration,
-    "time": this.time,
-    "rating": this.rating,
-    "notes": this.notes,
-  };
+  // Removed redundant method
 }
