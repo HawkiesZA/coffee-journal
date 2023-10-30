@@ -33,6 +33,7 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
 
   String _roaster = "";
   String _blend = "";
+  String _varietal = "";
   String _selectedRoastProfile = sp.getString(PrefKeys.default_roast_profile.name) ?? roastProfiles[0];
   String _selectedBrewMethod = sp.getString(PrefKeys.default_brew_method.name) ?? brewMethods[0];
   String _selectedGrindSize = sp.getString(PrefKeys.default_grind_size.name) ?? grindSizes[0];
@@ -225,6 +226,64 @@ class CreateOrEditBrewState extends State<CreateOrEditBrew> {
                       },
                     ),
                     DropdownButtonFormField(
+                    RawAutocomplete<Brew>(
+                      optionsBuilder: (TextEditingValue textEditingValue) {
+                        if (snapshot.hasData) {
+                          return snapshot.data.filterUniqueVarietal().where((Brew option) {
+                            return option.varietal!.toLowerCase()
+                                .contains(textEditingValue.text.toLowerCase());
+                          });
+                        }
+                        return List.generate(0, (index) => Brew());
+                      },
+                      initialValue: TextEditingValue(text: _varietal),
+                      displayStringForOption: _displayStringForVarietal,
+                      fieldViewBuilder: (BuildContext context,
+                          TextEditingController textEditingController,
+                          FocusNode focusNode,
+                          VoidCallback onFieldSubmitted) {
+                        return TextFormField(
+                          controller: textEditingController,
+                          focusNode: focusNode,
+                          onFieldSubmitted: (String value) {
+                            onFieldSubmitted();
+                          },
+                          decoration: const InputDecoration(labelText: "Varietal"),
+                          onChanged: (text) {
+                            _varietal = text;
+                          },
+                        );
+                      },
+                      optionsViewBuilder: (BuildContext context,
+                          AutocompleteOnSelected<Brew> onSelected,
+                          Iterable<Brew> options) {
+                        return Align(
+                          alignment: Alignment.topLeft,
+                          child: Material(
+                            elevation: 4.0,
+                            child: SizedBox(
+                              height: 120.0,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(8.0),
+                                itemCount: options.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final Brew option = options.elementAt(index);
+                                  return GestureDetector(
+                                    onTap: () {
+                                      onSelected(option);
+                                      _varietal = option.varietal!;
+                                    },
+                                    child: ListTile(
+                                      title: Text(option.varietal!),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                         decoration:
                             const InputDecoration(labelText: "Roast Profile"),
                         value: _selectedRoastProfile,
